@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>O'Fest — infos des commissions</title>
+<link rel="icon" href="https://lh3.googleusercontent.com/d/17u3qAlNxcWXyV7JzGBebrvhnKIZBVKRI=w64">
+<style>
+:root{--turquoise:#16a3b4;--turquoise-fonce:#0d7f8d;--violet:#5b2f8f;--nuit:#1b1240;--nuit2:#2a1d5c;--anis:#c6d630;--soleil:#f5b335;
+  --neige:#f6f8fb;--encre:#14112a;--gris:#8a8799;--trait:#efeef4;--ok:#3fbf6f;--encours:#f5a524;--retard:#e5484d;--attente:#b9b6c8}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#ecebf2}
+body{font-family:"Haas",-apple-system,"Segoe UI",system-ui,sans-serif;color:var(--encre);-webkit-font-smoothing:antialiased;font-size:15px}
+#app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--neige);position:relative;padding-bottom:84px}
+#app.sans-nav{padding-bottom:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--turquoise-fonce)}
+.pastille{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:#fff;white-space:nowrap}
+.pastille i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.ok i,.pt.ok{background:var(--ok)} .encours i,.pt.encours{background:var(--encours)} .retard i,.pt.retard{background:var(--retard)} .attente i,.pt.attente{background:var(--attente)}
+.pt{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+/* accueil */
+.hero{height:290px;background:linear-gradient(180deg,rgba(27,18,64,.05),rgba(27,18,64,.2) 55%,rgba(27,18,64,.95)) ,var(--nuit) center/cover;color:#fff;position:relative;padding:18px 20px}
+.hero .logo{width:118px;display:block}
+.hero .compte{position:absolute;left:20px;right:20px;bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.hero .compte span{display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--anis);font-weight:700;margin-bottom:6px}
+.hero .compte b{font-size:54px;font-weight:900;line-height:.85;letter-spacing:-1px}
+.hero .compte .dates{text-align:right;font-weight:700;font-size:14px;line-height:1.3}
+.hero .compte .dates small{display:block;font-weight:400;font-size:12px;opacity:.85}
+.jours{display:flex;gap:6px;padding:14px 14px 8px;overflow-x:auto;scrollbar-width:none;background:var(--nuit);position:sticky;top:0;z-index:5}
+.jours::-webkit-scrollbar{display:none}
+.jours button{flex:none;padding:9px 13px;border-radius:14px;color:#cfc9ea;font-weight:700;font-size:14px;border:0;background:none;line-height:1.1;cursor:pointer}
+.jours button small{display:block;font-size:11px;font-weight:400;opacity:.8}
+.jours button.on{background:var(--turquoise);color:#fff}
+.liste{background:var(--nuit);padding:8px 14px 26px;min-height:300px}
+.carte{display:flex;gap:12px;background:var(--nuit2);border-radius:20px;padding:10px;margin-bottom:10px;color:#fff;align-items:center;border:0;width:100%;text-align:left;cursor:pointer}
+.carte .vis{width:74px;height:94px;border-radius:14px;background:var(--violet) center top/cover;flex:none}
+.carte h3{font-size:18px;font-weight:900;letter-spacing:-.2px}
+.carte .qui{font-size:13px;color:#b8b1dc;margin:3px 0 8px}
+.carte .pastille{background:rgba(255,255,255,.1);color:#fff}
+.carte .suite{font-size:12px;color:var(--anis);margin-top:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.grille{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;background:var(--neige)}
+.grille button{background:#fff;border-radius:16px;padding:13px 12px;font-weight:700;font-size:14px;border:0;text-align:left;cursor:pointer;min-height:70px}
+.grille button small{display:flex;align-items:center;gap:6px;font-weight:400;color:var(--gris);font-size:12px;margin-top:5px}
+.titre-bloc{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--violet);font-weight:700;padding:18px 16px 0}
+/* fiche */
+.f-hero{height:220px;background:linear-gradient(180deg,rgba(27,18,64,.1),rgba(27,18,64,.95)),var(--violet) center 40%/cover;color:#fff;position:relative;padding:16px}
+.retour{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:999px;padding:7px 13px;font-weight:700;font-size:14px;cursor:pointer;backdrop-filter:blur(6px)}
+.f-hero .titre{position:absolute;left:18px;right:18px;bottom:16px}
+.f-hero .titre span{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--soleil);font-weight:700}
+.f-hero .titre h2{font-size:30px;font-weight:900;text-transform:uppercase;font-style:italic;line-height:1;margin-top:4px}
+.corps{padding:14px 14px 30px}
+.bloc{background:#fff;border-radius:18px;padding:14px;margin-bottom:10px}
+.bloc h4{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--violet);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.bloc h4 button{font-size:12px;letter-spacing:0;text-transform:none;color:var(--turquoise-fonce);background:none;border:0;font-weight:700;cursor:pointer}
+.texte{font-size:14px;line-height:1.45;white-space:pre-wrap}
+.vide{color:var(--gris);font-size:14px}
+.statut{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.statut small{color:var(--gris);font-size:12px}
+.segments{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:10px;background:var(--trait);border-radius:12px;padding:3px}
+.segments button{border:0;background:none;border-radius:9px;padding:8px 2px;font-size:12px;font-weight:700;color:var(--gris);cursor:pointer}
+.segments button.on{background:#fff;color:var(--encre);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.personne{display:flex;align-items:center;gap:10px;margin-top:8px}
+.personne:first-of-type{margin-top:0}
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:13px;color:#fff;flex:none;background:var(--turquoise)}
+.personne b{font-size:15px;display:block}.personne small{color:var(--gris);font-size:12px}
+.tache{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--trait);font-size:14px}
+.tache:first-child{border-top:0}
+.case{width:22px;height:22px;border-radius:7px;border:2px solid #cfcde0;flex:none;background:#fff;cursor:pointer;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:900;padding:0}
+.case.on{background:var(--ok);border-color:var(--ok)}
+.case[disabled]{cursor:default}
+.tache .q{flex:1}.tache small{display:block;color:var(--gris);font-size:12px;margin-top:2px}
+.tache.faite .q{color:var(--gris);text-decoration:line-through}
+.date{flex:none;font-weight:900;color:var(--turquoise-fonce);font-size:13px;white-space:nowrap}
+.date.retard{color:var(--retard)}
+.presta{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--trait);font-size:14px}
+.presta:first-child{border-top:0}
+.presta small{display:block;color:var(--gris);font-size:12px;margin-top:2px}
+.presta .prix{font-weight:900;white-space:nowrap;text-align:right}
+.doc{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;font-weight:700;text-decoration:none;color:var(--turquoise-fonce)}
+.doc i{width:24px;height:28px;border-radius:5px;background:#e9f6f8;flex:none;border:1px solid #cdeaee}
+.plus-faites{background:none;border:0;color:var(--gris);font-size:13px;font-weight:700;padding-top:8px;cursor:pointer}
+/* formulaires */
+.form{display:grid;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed #dddbe8}
+.form input,.form textarea,.form select{width:100%;border:1px solid #dddbe8;border-radius:12px;padding:11px 12px;background:#fbfbfd;font-size:15px}
+.form textarea{min-height:110px;resize:vertical}
+.boutons{display:flex;gap:8px}
+.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:900;font-size:15px;cursor:pointer;background:var(--violet);color:#fff;flex:1}
+.btn.clair{background:var(--trait);color:var(--encre);flex:none}
+.btn[disabled]{opacity:.5}
+/* échéancier */
+.e-tete{padding:22px 18px 6px;display:flex;justify-content:space-between;align-items:flex-start}
+.e-tete h2{font-size:28px;font-weight:900;letter-spacing:-.3px}
+.e-tete p{color:var(--gris);font-size:14px;margin-top:2px}
+.e-tete .pastille{background:var(--violet);color:#fff}
+.mois{padding:14px 18px 2px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:var(--violet)}
+.item{display:flex;gap:12px;padding:10px 18px;width:100%;background:none;border:0;text-align:left;cursor:pointer}
+.jour{flex:none;width:48px;text-align:center;background:#fff;border-radius:12px;padding:7px 0}
+.jour b{display:block;font-size:20px;font-weight:900;line-height:1}
+.jour span{font-size:11px;text-transform:uppercase;color:var(--gris);font-weight:700}
+.jour.sans b{font-size:14px;color:var(--gris);padding:5px 0 2px}
+.item .txt{flex:1;border-bottom:1px solid #e6e5ee;padding-bottom:10px}
+.item .txt b{font-size:15px;display:block}
+.item .txt small{font-size:12px;color:var(--gris)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-top:5px;color:#fff;background:var(--retard)}
+/* moi */
+.moi{padding:24px 18px}
+.moi h2{font-size:26px;font-weight:900}
+.moi p{color:var(--gris);margin-top:4px}
+.lien-btn{display:block;text-align:center;text-decoration:none;margin-top:12px}
+/* navigation */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;height:76px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid #ecebf2;z-index:10}
+.nav button{border:0;background:none;font-size:11px;font-weight:700;color:var(--gris);text-align:center;cursor:pointer;width:90px}
+.nav button i{display:block;width:24px;height:24px;margin:0 auto 4px;border-radius:8px;background:#e3e1ec}
+.nav button.on{color:var(--violet)} .nav button.on i{background:var(--violet)}
+/* accès */
+.acces{min-height:100vh;background:linear-gradient(180deg,rgba(27,18,64,.35),rgba(27,18,64,.96) 55%),var(--nuit) center/cover;color:#fff;padding:28px 22px 40px}
+.acces .logo{width:150px;margin:24px auto 0;display:block}
+.acces h1{font-size:26px;font-weight:900;margin-top:44px}
+.acces p{font-size:14px;color:#d8d3ef;margin:6px 0 18px;line-height:1.4}
+.acces label{display:block;font-size:11px;color:#a9a2cf;margin:0 0 4px 4px}
+.acces input,.acces select{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:13px 14px;font-size:16px;margin-bottom:10px;color:#fff}
+.acces select option{color:var(--encre)}
+.acces .btn{background:var(--anis);color:var(--encre);width:100%;padding:15px;margin-top:6px}
+.acces .liens{display:flex;justify-content:space-between;margin-top:16px;gap:8px}
+.acces .liens button{background:none;border:0;color:#fff;font-weight:700;font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.message{background:rgba(198,214,48,.15);border:1px solid rgba(198,214,48,.5);border-radius:14px;padding:12px 14px;font-size:14px;margin-bottom:14px;line-height:1.4}
+.message.erreur{background:rgba(229,72,77,.15);border-color:rgba(229,72,77,.6)}
+.chargement{position:fixed;inset:0;display:grid;place-items:center;background:rgba(246,248,251,.6);z-index:50;font-weight:700;color:var(--violet)}
+.chargement.cache{display:none}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:92px;background:var(--encre);color:#fff;border-radius:14px;padding:12px 16px;font-size:14px;z-index:60;max-width:440px;width:calc(100% - 32px)}
+</style>
+</head>
+<body data-mode="" data-jeton="">
+<div id="app" class="sans-nav"></div>
+<div id="chargement" class="chargement">Chargement…</div>
+<script>
+// Vide quand la page est servie par Google ; rempli par site.sh pour la page hébergée sur GitHub Pages (27/10), qui appelle
+// alors le script directement, sans les comptes Google du navigateur.
+var ADRESSE_API = 'https://script.google.com/macros/s/AKfycbx5vn6ryLDrkoizPbvVr1k9wu9ErUSi2YRR9LPQ4bO-ARu3mhqVYT1x0sau-2mOe4ZB/exec';
+var VISUELS = { cine: '1WFRQpU5YZhCohnurtMZYmQckl5EDJtpl', balade: '1BT-NKQAYIKW45NZ-H11t4gcrwIId5u8v', nordic: '1hvn0yLK6XSMfgDV9Li5Z9vGrlUGY1zER',
+  vtt: '1_zbTV1nrFiVR_d1YBijElUmHIrxYdtHA', trail: '1lcCGLRxJdsBQy6rj_wCslm9DYF5R2Y3m', multi: '1hKVlInyYspWBu9af7QbJJZoDDXozmSq7',
+  adapte: '1kCB1Sn5A6Ki_sK2FeHFYqTXiZg7cDBut', fondue: '1JYNqrxHbT4hZS_8-Qxt5mr2lj2e79ldX', ski: '1XxIV-o7WCUBOmxKdg_U6bhn6n_bP-8Hx' };
+var HERO = '1fVZmP6I-Q61MP34oR6ePZo-8S8jpQ8I8', LOGO = '17u3qAlNxcWXyV7JzGBebrvhnKIZBVKRI';
+var AVANCEMENTS = ['Calé', 'En cours', 'Bloqué', 'Pas commencé'];
+var CODES = { 'Calé': 'ok', 'En cours': 'encours', 'Bloqué': 'retard', 'Pas commencé': 'attente' };
+var MOIS = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
+var MOIS_LONGS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+var etat = { jeton: lireJeton(), d: null, vue: 'programme', jour: null, onglet: null, edition: null, faites: false, titres: null };
+var app = document.getElementById('app');
+
+function lireJeton() { try { return localStorage.getItem('ofest_jeton') || ''; } catch (e) { return ''; } }
+function garderJeton(j) { try { if (j) localStorage.setItem('ofest_jeton', j); else localStorage.removeItem('ofest_jeton'); } catch (e) {} etat.jeton = j || ''; }
+function e(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+function img(id, w) { return 'https://lh3.googleusercontent.com/d/' + id + '=w' + (w || 800); }
+function charge(oui) { document.getElementById('chargement').className = oui ? 'chargement' : 'chargement cache'; }
+function toast(t) {
+  var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d);
+  setTimeout(function () { d.remove(); }, 4500);
+}
+function appel(fn, args, ok) {
+  charge(true);
+  var reussi = function (r) { charge(false); ok(r); };
+  var rate = function (err) { charge(false); toast('Ça n\'a pas marché : ' + (err && err.message || err)); };
+  if (!ADRESSE_API) return google.script.run.withSuccessHandler(reussi).withFailureHandler(rate)[fn].apply(null, args || []);
+  fetch(ADRESSE_API, { method: 'POST', credentials: 'omit', body: JSON.stringify({ f: fn, a: args || [] }) })
+    .then(function (rep) { return rep.json(); })
+    .then(function (x) { if (x.ok) reussi(x.r); else rate(x.erreur); })
+    .catch(function () { rate('pas de réponse du serveur, réessaie dans un instant.'); });
+}
+/** Page hébergée : la police O'Fest vient du script (elle n'est pas publiée avec la page), gardée dans le navigateur. */
+function chargerPolice() {
+  var poser = function (css) { var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st); };
+  try { var gardee = localStorage.getItem('ofest_police'); if (gardee) return poser(gardee); } catch (err) {}
+  fetch(ADRESSE_API + '?action=police', { credentials: 'omit' }).then(function (rep) { return rep.json(); }).then(function (x) {
+    if (!x || !x.css) return;
+    poser(x.css);
+    try { localStorage.setItem('ofest_police', x.css); } catch (err) {}
+  }).catch(function () {});
+}
+function initiales(nom) { return String(nom || '?').split(/[\s-]+/).filter(Boolean).slice(0, 2).map(function (m) { return m[0]; }).join('').toUpperCase(); }
+function jourCourt(j) {
+  if (j === 'Partout') return '<b>Partout</b><small>' + etat.d.fiches.filter(function (f) { return estPartout(f); }).length + ' fiches</small>';
+  var m = String(j).split(' ');
+  return '<b>' + e(m[0].slice(0, 3)) + '</b><small>' + e(m.slice(1).join(' ')) + '</small>';
+}
+function estPartout(f) { return !/^(jeudi|vendredi|samedi|dimanche)/i.test(String(f.jour).trim()); }
+function dateCourte(iso) { var p = iso.split('-'); return +p[2] + ' ' + MOIS[+p[1] - 1]; }
+function lienSur(u) { return /^https?:\/\//i.test(String(u || '')); }
+function contact(c) {
+  var t = String(c || '').trim();
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return '<a href="mailto:' + e(t) + '">' + e(t) + '</a>';
+  if ((t.match(/\d/g) || []).length >= 8 && /^[\d\s+.()-]+$/.test(t)) return '<a href="tel:' + e(t.replace(/[^\d+]/g, '')) + '">' + e(t) + '</a>';
+  return e(t);
+}
+function fiche(onglet) { return etat.d.fiches.filter(function (f) { return f.onglet === onglet; })[0]; }
+
+// ---------------------------------------------------------------- démarrage
+function demarrer() {
+  if (ADRESSE_API) {
+    chargerPolice();
+    var q = new URLSearchParams(location.search);
+    if (q.get('action') === 'reset') {
+      document.body.setAttribute('data-mode', 'reset');
+      document.body.setAttribute('data-jeton', String(q.get('j') || '').replace(/[^a-z0-9]/gi, ''));
+    }
+    if (location.search) history.replaceState(null, '', location.pathname);
+  }
+  var mode = document.body.getAttribute('data-mode');
+  if (mode === 'reset') return ecranReset();
+  if (!etat.jeton) { charge(false); return ecranConnexion(); }
+  recharger();
+}
+function recharger() {
+  appel('donnees', [etat.jeton], function (d) {
+    if (!d || !d.session) { garderJeton(''); return ecranConnexion('Ta session a expiré : reconnecte-toi.', true); }
+    etat.d = d;
+    if (!etat.jour || d.jours.indexOf(etat.jour) < 0) etat.jour = d.jours[0];
+    rendre();
+  });
+}
+function recevoir(d) {
+  if (d && d.erreur) return toast(d.erreur);
+  if (!d || !d.session) { garderJeton(''); return ecranConnexion('Ta session a expiré : reconnecte-toi.', true); }
+  etat.d = d; etat.edition = null; rendre();
+}
+
+// ---------------------------------------------------------------- accès
+function cadreAcces(titre, texte, contenu, msg, erreur) {
+  app.className = 'sans-nav';
+  app.innerHTML = '<div class="acces" style="background-image:linear-gradient(180deg,rgba(27,18,64,.35),rgba(27,18,64,.96) 55%),url(' + img(HERO, 1000) + ')">' +
+    '<img class="logo" src="' + img(LOGO, 400) + '" alt="O\'Fest">' + '<h1>' + titre + '</h1><p>' + texte + '</p>' +
+    (msg ? '<div class="message' + (erreur ? ' erreur' : '') + '">' + e(msg) + '</div>' : '') + contenu + '</div>';
+}
+function ecranConnexion(msg, erreur) {
+  cadreAcces('Infos des commissions', 'Le programme, les fiches et les échéances d\'O\'Fest 2027, pour l\'équipe d\'organisation.',
+    '<form id="f"><label>Adresse mail</label><input name="mail" type="email" autocomplete="username" required>' +
+    '<label>Mot de passe</label><input name="mdp" type="password" autocomplete="current-password" required>' +
+    '<button class="btn">Se connecter</button></form>' +
+    '<div class="liens"><button id="demande">Demander un accès</button><button id="oubli">Mot de passe oublié ?</button></div>', msg, erreur);
+  document.getElementById('f').onsubmit = function (ev) {
+    ev.preventDefault();
+    var f = ev.target;
+    appel('connexion', [f.mail.value, f.mdp.value], function (r) {
+      if (r.erreur) return ecranConnexion(r.erreur, true);
+      garderJeton(r.jeton); recharger();
+    });
+  };
+  document.getElementById('demande').onclick = ecranDemande;
+  document.getElementById('oubli').onclick = ecranOubli;
+}
+function ecranDemande() {
+  var suite = function (titres) {
+    etat.titres = titres;
+    cadreAcces('Demander un accès', 'O\'Sports reçoit ta demande et la valide ; tu reçois alors un mail. Ton mot de passe ne figure jamais dans la demande.',
+      '<form id="f"><label>Prénom et nom</label><input name="nom" autocomplete="name" required>' +
+      '<label>Adresse mail</label><input name="mail" type="email" autocomplete="email" required>' +
+      '<label>Ma fiche (activité ou commission)</label><select name="fiche"><option value="">Pilotage ou autre</option>' +
+      titres.map(function (t) { return '<option>' + e(t) + '</option>'; }).join('') + '</select>' +
+      '<label>Mot de passe choisi (8 caractères au moins)</label><input name="mdp" type="password" autocomplete="new-password" required>' +
+      '<label>Le même, encore une fois</label><input name="mdp2" type="password" autocomplete="new-password" required>' +
+      '<button class="btn">Envoyer ma demande</button></form><div class="liens"><button id="retour">‹ Retour à la connexion</button></div>');
+    document.getElementById('retour').onclick = function () { ecranConnexion(); };
+    document.getElementById('f').onsubmit = function (ev) {
+      ev.preventDefault();
+      var f = ev.target;
+      if (f.mdp.value !== f.mdp2.value) return toast('Les deux mots de passe ne sont pas les mêmes.');
+      appel('demanderAcces', [f.nom.value, f.mail.value, f.fiche.value, f.mdp.value], function (r) {
+        if (r.erreur) return toast(r.erreur);
+        ecranConnexion('Demande envoyée à O\'Sports. Tu recevras un mail dès que ton accès sera ouvert.');
+      });
+    };
+  };
+  if (etat.titres) suite(etat.titres); else appel('titresFiches', [], suite);
+}
+function ecranOubli() {
+  cadreAcces('Mot de passe oublié', 'Indique ton adresse : si elle a un accès, un lien pour choisir un nouveau mot de passe part tout de suite (valable une heure).',
+    '<form id="f"><label>Adresse mail</label><input name="mail" type="email" required><button class="btn">Recevoir le lien</button></form>' +
+    '<div class="liens"><button id="retour">‹ Retour à la connexion</button></div>');
+  document.getElementById('retour').onclick = function () { ecranConnexion(); };
+  document.getElementById('f').onsubmit = function (ev) {
+    ev.preventDefault();
+    appel('motDePasseOublie', [ev.target.mail.value], function () {
+      ecranConnexion('Si cette adresse a un accès, le lien vient de partir. Pense à regarder dans les indésirables.');
+    });
+  };
+}
+function ecranReset() {
+  charge(false);
+  cadreAcces('Nouveau mot de passe', 'Choisis ton nouveau mot de passe (8 caractères au moins).',
+    '<form id="f"><label>Nouveau mot de passe</label><input name="mdp" type="password" autocomplete="new-password" required>' +
+    '<label>Le même, encore une fois</label><input name="mdp2" type="password" autocomplete="new-password" required>' +
+    '<button class="btn">Enregistrer</button></form>');
+  document.getElementById('f').onsubmit = function (ev) {
+    ev.preventDefault();
+    var f = ev.target;
+    if (f.mdp.value !== f.mdp2.value) return toast('Les deux mots de passe ne sont pas les mêmes.');
+    appel('nouveauMotDePasse', [document.body.getAttribute('data-jeton'), f.mdp.value], function (r) {
+      if (r.erreur) return toast(r.erreur);
+      document.body.setAttribute('data-mode', '');
+      ecranConnexion('C\'est enregistré : connecte-toi avec ton nouveau mot de passe.');
+    });
+  };
+}
+
+// ---------------------------------------------------------------- vues
+function rendre() {
+  app.className = '';
+  var html = etat.vue === 'fiche' ? vueFiche() : etat.vue === 'avenir' ? vueAvenir() : etat.vue === 'moi' ? vueMoi() : vueProgramme();
+  app.innerHTML = html + nav();
+  brancher();
+}
+function nav() {
+  var b = function (v, t) { return '<button data-vue="' + v + '" class="' + ((etat.vue === v || (v === 'programme' && etat.vue === 'fiche')) ? 'on' : '') + '"><i></i>' + t + '</button>'; };
+  return '<div class="nav">' + b('programme', 'Programme') + b('avenir', 'À venir') + b('moi', 'Moi') + '</div>';
+}
+function vueProgramme() {
+  var d = etat.d, j = etat.jour;
+  var fiches = d.fiches.filter(function (f) { return j === 'Partout' ? estPartout(f) : f.jour === j; });
+  var p = d.festival.split('-');
+  var corps = j === 'Partout'
+    ? '<div class="grille">' + fiches.map(function (f) {
+        return '<button data-fiche="' + e(f.onglet) + '">' + e(f.titre) + '<small><span class="pt ' + f.statut + '"></span>' +
+          e(f.responsable || f.avancement || 'À désigner') + '</small></button>';
+      }).join('') + '</div>'
+    : '<div class="liste">' + fiches.map(function (f) {
+        var t = f.taches.filter(function (x) { return !x.fait; })[0];
+        return '<button class="carte" data-fiche="' + e(f.onglet) + '"><span class="vis" style="' + (VISUELS[f.visuel] ? 'background-image:url(' + img(VISUELS[f.visuel], 300) + ')' : '') + '"></span>' +
+          '<span><h3>' + e(f.titre) + '</h3><div class="qui">' + e(f.responsable || 'Responsable à désigner') + '</div>' +
+          '<span class="pastille ' + f.statut + '"><i></i>' + e(f.avancement || 'Pas commencé') + '</span>' +
+          (t ? '<div class="suite">' + e(t.tache) + (t.echeance ? ' · ' + dateCourte(t.echeance) : '') + '</div>' : f.ouOnEnEst ? '<div class="suite">' + e(f.ouOnEnEst) + '</div>' : '') +
+          '</span></button>';
+      }).join('') + (fiches.length ? '' : '<p style="color:#cfc9ea">Aucune fiche ce jour-là.</p>') + '</div>';
+  return '<div class="hero" style="background-image:linear-gradient(180deg,rgba(27,18,64,.05),rgba(27,18,64,.2) 55%,rgba(27,18,64,.95)),url(' + img(HERO, 1000) + ')">' +
+    '<img class="logo" src="' + img(LOGO, 400) + '" alt="O\'Fest">' +
+    '<div class="compte"><div><span>' + (d.joursAvant >= 0 ? 'Plus que' : 'C\'était il y a') + '</span><b>J' + (d.joursAvant >= 0 ? '-' + d.joursAvant : '+' + (-d.joursAvant)) + '</b></div>' +
+    '<div class="dates">' + (+p[2]) + ' ' + MOIS_LONGS[+p[1] - 1].toLowerCase() + ' ' + p[0] + '<small>Métabief · bas des pistes</small></div></div></div>' +
+    '<div class="jours">' + d.jours.map(function (x) { return '<button data-jour="' + e(x) + '" class="' + (x === j ? 'on' : '') + '">' + jourCourt(x) + '</button>'; }).join('') + '</div>' + corps;
+}
+function vueFiche() {
+  var f = fiche(etat.onglet);
+  if (!f) { etat.vue = 'programme'; return vueProgramme(); }
+  var ed = etat.edition, peut = f.peut;
+  var modif = function (cle) { return peut ? '<button data-editer="' + cle + '">' + (ed === cle ? 'Fermer' : cle === 'taches' || cle === 'prestataires' || cle === 'documents' ? '+ Ajouter' : 'Modifier') + '</button>' : ''; };
+  var faites = f.taches.filter(function (t) { return t.fait; }), aFaire = f.taches.filter(function (t) { return !t.fait; });
+  var ligneTache = function (t) {
+    var retard = t.echeance && t.echeance < etat.d.aujourdhui && !t.fait;
+    return '<div class="tache' + (t.fait ? ' faite' : '') + '"><button class="case' + (t.fait ? ' on' : '') + '" ' + (peut ? 'data-cocher="' + t.ligne + '"' : 'disabled') + '>' + (t.fait ? '✓' : '') + '</button>' +
+      '<span class="q">' + e(t.tache) + (t.qui ? '<small>' + e(t.qui) + '</small>' : '') + '</span>' +
+      (t.echeance ? '<span class="date' + (retard ? ' retard' : '') + '">' + dateCourte(t.echeance) + '</span>' : t.echeanceTexte ? '<span class="date">' + e(t.echeanceTexte) + '</span>' : '') + '</div>';
+  };
+  var form = function (cle) {
+    if (ed !== cle) return '';
+    var champs = {
+      equipe: '<input name="responsable" placeholder="Responsable" value="' + e(f.responsable) + '"><input name="equipe" placeholder="Équipe" value="' + e(f.equipe) + '">',
+      ouOnEnEst: '<textarea name="ouOnEnEst">' + e(f.ouOnEnEst) + '</textarea>',
+      budget: '<input name="budget" placeholder="Fourchette de budget" value="' + e(f.budget) + '">',
+      taches: '<input name="tache" placeholder="Tâche" required><input name="qui" placeholder="Qui"><input name="echeance" type="date">',
+      prestataires: '<input name="nom" placeholder="Nom" required><input name="role" placeholder="Rôle"><input name="contact" placeholder="Téléphone ou mail"><input name="prix" placeholder="Prix"><input name="statut" placeholder="Statut (demandé, réservé…)">',
+      documents: '<input name="titre" placeholder="Titre"><input name="lien" type="url" placeholder="https://…" required>'
+    }[cle];
+    return '<form class="form" data-form="' + cle + '">' + champs + '<div class="boutons"><button type="button" class="btn clair" data-editer="' + cle + '">Annuler</button><button class="btn">Enregistrer</button></div></form>';
+  };
+  var hero = VISUELS[f.visuel] ? 'background-image:linear-gradient(180deg,rgba(27,18,64,.1),rgba(27,18,64,.95)),url(' + img(VISUELS[f.visuel], 900) + ')' : 'background:linear-gradient(135deg,var(--turquoise),var(--violet))';
+  return '<div class="f-hero" style="' + hero + '"><button class="retour" data-retour>‹ ' + e(estPartout(f) ? 'Partout' : String(f.jour).split(' ')[0]) + '</button>' +
+    '<div class="titre"><span>' + e(estPartout(f) ? 'Pendant tout le festival' : f.jour) + '</span><h2>' + e(f.titre) + '</h2></div></div><div class="corps">' +
+    '<div class="bloc"><div class="statut"><span class="pastille ' + f.statut + '" style="background:var(--neige)"><i></i>' + e(f.avancement || 'Pas commencé') + '</span>' +
+    '<small>' + (f.misAJour ? 'Mis à jour le ' + e(f.misAJour) : '') + '</small></div>' +
+    (peut ? '<div class="segments">' + AVANCEMENTS.map(function (a) { return '<button data-avancement="' + a + '" class="' + (a === f.avancement ? 'on' : '') + '">' + a + '</button>'; }).join('') + '</div>' : '') + '</div>' +
+    '<div class="bloc"><h4>Équipe' + modif('equipe') + '</h4>' +
+    '<div class="personne"><span class="av">' + e(initiales(f.responsable)) + '</span><span><b>' + e(f.responsable || 'Responsable à désigner') + '</b><small>Responsable</small></span></div>' +
+    (f.equipe ? '<div class="personne"><span class="av" style="background:var(--violet)">+</span><span><b>' + e(f.equipe) + '</b><small>Équipe</small></span></div>' : '') + form('equipe') + '</div>' +
+    '<div class="bloc"><h4>Où on en est' + modif('ouOnEnEst') + '</h4>' + (f.ouOnEnEst ? '<div class="texte">' + e(f.ouOnEnEst) + '</div>' : '<div class="vide">Rien d\'écrit pour l\'instant.</div>') + form('ouOnEnEst') + '</div>' +
+    '<div class="bloc"><h4>À faire' + modif('taches') + '</h4>' + (aFaire.length ? aFaire.map(ligneTache).join('') : '<div class="vide">Rien en attente.</div>') +
+    (faites.length ? (etat.faites ? faites.map(ligneTache).join('') : '<button class="plus-faites" data-faites>' + (faites.length > 1 ? 'Voir les ' + faites.length + ' tâches faites' : 'Voir la tâche faite') + '</button>') : '') + form('taches') + '</div>' +
+    '<div class="bloc"><h4>Prestataires' + modif('prestataires') + '</h4>' + (f.prestataires.length ? f.prestataires.map(function (p) {
+      return '<div class="presta"><div>' + e(p.nom) + '<small>' + [e(p.role), contact(p.contact)].filter(Boolean).join(' · ') + '</small></div><div class="prix">' + e(p.prix || '—') + (p.statut ? '<small>' + e(p.statut) + '</small>' : '') + '</div></div>';
+    }).join('') : '<div class="vide">Aucun pour l\'instant.</div>') + form('prestataires') + '</div>' +
+    '<div class="bloc"><h4>Budget' + modif('budget') + '</h4>' + (f.budget ? '<div class="texte" style="font-weight:700;font-size:16px">' + e(f.budget) + '</div>' : '<div class="vide">Pas encore fixé.</div>') + form('budget') + '</div>' +
+    '<div class="bloc"><h4>Documents' + modif('documents') + '</h4>' + (f.documents.length ? f.documents.map(function (x) {
+      return lienSur(x.lien) ? '<a class="doc" target="_blank" rel="noopener" href="' + e(x.lien) + '"><i></i>' + e(x.titre) + '</a>' : '<div class="doc"><i></i>' + e(x.titre) + '</div>';
+    }).join('') : '<div class="vide">Aucun document.</div>') + form('documents') + '</div>' +
+    (peut ? '' : '<p class="vide" style="text-align:center;margin-top:8px">Pour modifier cette fiche, demande au pilotage d\'ajouter ton adresse.</p>') + '</div>';
+}
+function vueAvenir() {
+  var ech = etat.d.echeances, html = '', mois = '';
+  ech.datees.forEach(function (x) {
+    var p = x.echeance.split('-'), m = MOIS_LONGS[+p[1] - 1] + ' ' + p[0];
+    if (m !== mois) { html += '<div class="mois">' + m + '</div>'; mois = m; }
+    html += '<button class="item" data-fiche="' + e(x.onglet) + '"><span class="jour"><b>' + (+p[2]) + '</b><span>' + MOIS[+p[1] - 1] + '</span></span>' +
+      '<span class="txt"><b>' + e(x.tache) + '</b><small>' + e(x.fiche) + (x.qui ? ' · ' + e(x.qui) : '') + '</small>' + (x.retard ? '<br><span class="tag">En retard</span>' : '') + '</span></button>';
+  });
+  if (ech.sansDate.length) {
+    html += '<div class="mois">À caler, sans date</div>' + ech.sansDate.map(function (x) {
+      return '<button class="item" data-fiche="' + e(x.onglet) + '"><span class="jour sans"><b>—</b></span><span class="txt"><b>' + e(x.tache) + '</b><small>' +
+        e(x.fiche) + (x.qui ? ' · ' + e(x.qui) : '') + (x.texte ? ' · ' + e(x.texte) : '') + '</small></span></button>';
+    }).join('');
+  }
+  var n = ech.datees.length + ech.sansDate.length;
+  return '<div class="e-tete"><div><h2>Ce qui arrive</h2><p>Toutes les fiches · ' + n + ' tâche' + (n > 1 ? 's' : '') + ' en attente</p></div>' +
+    '<span class="pastille">J-' + Math.max(0, etat.d.joursAvant) + '</span></div>' + (html || '<p class="vide" style="padding:18px">Rien en attente.</p>');
+}
+function vueMoi() {
+  var m = etat.d.moi;
+  return '<div class="moi"><h2>' + e(m.nom) + '</h2><p>' + e(m.mail) + '</p><p style="margin-top:10px;color:var(--encre)">' +
+    (m.pilotage ? 'Pilotage : tu peux modifier toutes les fiches.' : 'Tu peux modifier les fiches où ton adresse est inscrite.') + '</p>' +
+    (etat.d.tableur ? '<a class="btn lien-btn" target="_blank" rel="noopener" href="' + e(etat.d.tableur) + '">Ouvrir le tableur Récap général 2027</a>' : '') +
+    '<button class="btn clair" style="width:100%;margin-top:12px" id="deconnexion">Se déconnecter</button>' +
+    '<p style="font-size:13px;margin-top:22px;line-height:1.4">Toutes les infos viennent du tableur « Récap général O\'Fest 2027 » du Drive O\'Sports : une modification faite là-bas apparaît ici en moins d\'une minute.</p></div>';
+}
+
+// ---------------------------------------------------------------- gestes
+function brancher() {
+  app.querySelectorAll('[data-vue]').forEach(function (b) { b.onclick = function () { etat.vue = b.getAttribute('data-vue'); etat.edition = null; rendre(); window.scrollTo(0, 0); }; });
+  app.querySelectorAll('[data-jour]').forEach(function (b) { b.onclick = function () { etat.jour = b.getAttribute('data-jour'); rendre(); }; });
+  app.querySelectorAll('[data-fiche]').forEach(function (b) {
+    b.onclick = function () { etat.onglet = b.getAttribute('data-fiche'); etat.vue = 'fiche'; etat.edition = null; etat.faites = false; rendre(); window.scrollTo(0, 0); };
+  });
+  var r = app.querySelector('[data-retour]');
+  if (r) r.onclick = function () { var f = fiche(etat.onglet); etat.vue = 'programme'; etat.jour = estPartout(f) ? 'Partout' : f.jour; rendre(); window.scrollTo(0, 0); };
+  app.querySelectorAll('[data-editer]').forEach(function (b) { b.onclick = function () { var c = b.getAttribute('data-editer'); etat.edition = etat.edition === c ? null : c; rendre(); }; });
+  var vf = app.querySelector('[data-faites]');
+  if (vf) vf.onclick = function () { etat.faites = true; rendre(); };
+  app.querySelectorAll('[data-avancement]').forEach(function (b) {
+    b.onclick = function () { appel('modifierFiche', [etat.jeton, etat.onglet, { avancement: b.getAttribute('data-avancement') }], recevoir); };
+  });
+  app.querySelectorAll('[data-cocher]').forEach(function (b) {
+    b.onclick = function () { appel('cocherTache', [etat.jeton, etat.onglet, +b.getAttribute('data-cocher'), !b.classList.contains('on')], recevoir); };
+  });
+  app.querySelectorAll('[data-form]').forEach(function (f) {
+    f.onsubmit = function (ev) {
+      ev.preventDefault();
+      var cle = f.getAttribute('data-form'), v = {};
+      Array.prototype.forEach.call(f.elements, function (x) { if (x.name) v[x.name] = x.value; });
+      if (cle === 'taches' || cle === 'prestataires' || cle === 'documents') appel('ajouterLigne', [etat.jeton, etat.onglet, cle, v], recevoir);
+      else appel('modifierFiche', [etat.jeton, etat.onglet, v], recevoir);
+    };
+  });
+  var dx = document.getElementById('deconnexion');
+  if (dx) dx.onclick = function () { appel('deconnexion', [etat.jeton], function () { garderJeton(''); etat.d = null; etat.vue = 'programme'; ecranConnexion('Tu es déconnecté.'); }); };
+}
+
+demarrer();
+</script>
+</body>
+</html>
