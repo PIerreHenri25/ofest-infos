@@ -110,6 +110,14 @@ a{color:var(--turquoise-fonce)}
 .moi h2{font-size:26px;font-weight:900}
 .moi p{color:var(--gris);margin-top:4px}
 .lien-btn{display:block;text-align:center;text-decoration:none;margin-top:12px}
+.comptes{margin-top:16px;text-align:left}
+.comptes .ligne{padding:11px 0;border-top:1px solid var(--trait)} .comptes .ligne:first-of-type{border-top:0;padding-top:2px}
+.comptes b{font-size:15px} .comptes small{display:block;color:var(--gris);font-size:12px;margin-top:2px;word-break:break-all}
+.comptes .boutons{margin-top:8px} .comptes .btn{padding:9px 8px;font-size:13px}
+.comptes .lien{background:none;border:0;color:var(--turquoise-fonce);font-weight:700;font-size:13px;padding:6px 0 0;cursor:pointer}
+.chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--neige);color:var(--violet);margin-top:5px}
+.chip.rouge{background:#fde8e8;color:var(--retard)}
+.badge{display:inline-block;min-width:16px;padding:0 5px;border-radius:999px;background:var(--retard);color:#fff;font-size:10px;line-height:16px;margin-left:3px}
 /* navigation */
 .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;height:76px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid #ecebf2;z-index:10}
 .nav button{border:0;background:none;font-size:11px;font-weight:700;color:var(--gris);text-align:center;cursor:pointer;width:90px}
@@ -148,7 +156,7 @@ var AVANCEMENTS = ['Calé', 'En cours', 'Bloqué', 'Pas commencé'];
 var CODES = { 'Calé': 'ok', 'En cours': 'encours', 'Bloqué': 'retard', 'Pas commencé': 'attente' };
 var MOIS = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
 var MOIS_LONGS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-var etat = { jeton: lireJeton(), d: null, vue: 'programme', jour: null, onglet: null, edition: null, faites: false, titres: null };
+var etat = { jeton: lireJeton(), d: null, vue: 'programme', jour: null, onglet: null, edition: null, faites: false, titres: null, acces: null };
 var app = document.getElementById('app');
 
 function lireJeton() { try { return localStorage.getItem('ofest_jeton') || ''; } catch (e) { return ''; } }
@@ -311,10 +319,11 @@ function rendre() {
   var html = etat.vue === 'fiche' ? vueFiche() : etat.vue === 'avenir' ? vueAvenir() : etat.vue === 'moi' ? vueMoi() : vueProgramme();
   app.innerHTML = html + nav();
   brancher();
+  if (etat.vue === 'moi' && etat.d.moi.pilotage && !etat.acces) chargerAcces();
 }
 function nav() {
   var b = function (v, t) { return '<button data-vue="' + v + '" class="' + ((etat.vue === v || (v === 'programme' && etat.vue === 'fiche')) ? 'on' : '') + '"><i></i>' + t + '</button>'; };
-  return '<div class="nav">' + b('programme', 'Programme') + b('avenir', 'À venir') + b('moi', 'Moi') + '</div>';
+  return '<div class="nav">' + b('programme', 'Programme') + b('avenir', 'À venir') + b('moi', 'Moi' + (etat.d.demandes ? '<span class="badge">' + etat.d.demandes + '</span>' : '')) + '</div>';
 }
 function vueProgramme() {
   var d = etat.d, j = etat.jour;
@@ -407,13 +416,50 @@ function vueMoi() {
   return '<div class="moi"><h2>' + e(m.nom) + '</h2><p>' + e(m.mail) + '</p><p style="margin-top:10px;color:var(--encre)">' +
     (m.pilotage ? 'Pilotage : tu peux modifier toutes les fiches.' : 'Tu peux modifier les fiches où ton adresse est inscrite.') + '</p>' +
     (etat.d.tableur ? '<a class="btn lien-btn" target="_blank" rel="noopener" href="' + e(etat.d.tableur) + '">Ouvrir le tableur Récap général 2027</a>' : '') +
+    (m.pilotage ? blocAcces() : '') +
     '<button class="btn clair" style="width:100%;margin-top:12px" id="deconnexion">Se déconnecter</button>' +
     '<p style="font-size:13px;margin-top:22px;line-height:1.4">Toutes les infos viennent du tableur « Récap général O\'Fest 2027 » du Drive O\'Sports : une modification faite là-bas apparaît ici en moins d\'une minute.</p></div>';
 }
 
+/** Pilotage (13/11) : les demandes d'accès à valider ici, et les accès ouverts (avec l'adresse de chacun). */
+function blocAcces() {
+  if (!etat.acces) return '<div class="bloc comptes"><h4>Demandes d\'accès</h4><div class="vide">Chargement…</div></div>';
+  var attente = etat.acces.filter(function (c) { return c.etat === 'attente'; }), ouverts = etat.acces.filter(function (c) { return c.etat === 'actif'; });
+  var quand = function (ms) { var d = new Date(ms); return d.getDate() + ' ' + MOIS[d.getMonth()] + ' à ' + d.getHours() + 'h' + ('0' + d.getMinutes()).slice(-2); };
+  var bouton = function (c, action, texte, classe) { return '<button class="btn' + (classe || '') + '" data-decider="' + action + '" data-mail="' + e(c.mail) + '">' + texte + '</button>'; };
+  return '<div class="bloc comptes"><h4>Demandes d\'accès</h4>' + (attente.length ? attente.map(function (c) {
+      return '<div class="ligne"><b>' + e(c.nom) + '</b><small>' + e(c.mail) + ' · ' + e(c.fiche || 'Pilotage ou autre') + (c.demandeLe ? ' · le ' + quand(c.demandeLe) : '') + '</small>' +
+        '<div class="boutons">' + (c.fiche ? bouton(c, 'valider', 'Sa fiche') : '') + bouton(c, 'pilotage', 'Pilotage') + bouton(c, 'refuser', 'Refuser', ' clair') + '</div></div>';
+    }).join('') : '<div class="vide">Aucune demande en attente.</div>') + '</div>' +
+    '<div class="bloc comptes"><h4>Accès ouverts · ' + ouverts.length + '</h4>' + ouverts.map(function (c) {
+      return '<div class="ligne"><b>' + e(c.nom) + '</b><small>' + e(c.mail) + '</small>' +
+        '<span class="chip">' + (c.pilotage ? 'Pilotage' : 'Fiche : ' + e(c.fiche || '—')) + '</span>' + (c.bloque ? ' <span class="chip rouge">Bloqué 15 min (trop d\'essais)</span>' : '') +
+        (c.pilotage ? '' : '<br><button class="lien" data-decider="pilotage" data-mail="' + e(c.mail) + '" data-confirmer="1">Passer en pilotage</button>') + '</div>';
+    }).join('') + '</div>';
+}
+function chargerAcces() {
+  etat.acces = [];
+  appel('acces', [etat.jeton], recevoirAcces);
+}
+function recevoirAcces(r) {
+  if (r && r.session === false) { garderJeton(''); return ecranConnexion('Ta session a expiré : reconnecte-toi.', true); }
+  if (r && r.erreur) toast(r.erreur); else if (r && r.message) toast(r.message);
+  if (r && r.comptes) {
+    etat.acces = r.comptes;
+    etat.d.demandes = r.comptes.filter(function (c) { return c.etat === 'attente'; }).length;
+  }
+  rendre();
+}
+
 // ---------------------------------------------------------------- gestes
 function brancher() {
-  app.querySelectorAll('[data-vue]').forEach(function (b) { b.onclick = function () { etat.vue = b.getAttribute('data-vue'); etat.edition = null; rendre(); window.scrollTo(0, 0); }; });
+  app.querySelectorAll('[data-vue]').forEach(function (b) { b.onclick = function () { etat.vue = b.getAttribute('data-vue'); etat.edition = null; if (etat.vue === 'moi') etat.acces = null; rendre(); window.scrollTo(0, 0); }; });
+  app.querySelectorAll('[data-decider]').forEach(function (b) {
+    b.onclick = function () {
+      if (b.getAttribute('data-confirmer') && !window.confirm('Passer cette personne en pilotage ? Elle pourra modifier toutes les fiches.')) return;
+      appel('deciderAcces', [etat.jeton, b.getAttribute('data-mail'), b.getAttribute('data-decider')], recevoirAcces);
+    };
+  });
   app.querySelectorAll('[data-jour]').forEach(function (b) { b.onclick = function () { etat.jour = b.getAttribute('data-jour'); rendre(); }; });
   app.querySelectorAll('[data-fiche]').forEach(function (b) {
     b.onclick = function () { etat.onglet = b.getAttribute('data-fiche'); etat.vue = 'fiche'; etat.edition = null; etat.faites = false; rendre(); window.scrollTo(0, 0); };
