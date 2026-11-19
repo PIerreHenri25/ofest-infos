@@ -117,6 +117,8 @@ a{color:var(--turquoise-fonce)}
 .comptes .lien{background:none;border:0;color:var(--turquoise-fonce);font-weight:700;font-size:13px;padding:6px 0 0;cursor:pointer}
 .chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--neige);color:var(--violet);margin-top:5px}
 .chip.rouge{background:#fde8e8;color:var(--retard)}
+.idee-lien{display:block;margin:18px auto 0;background:#fff;color:var(--violet);border:0;border-radius:14px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 10px rgba(27,18,64,.12)}
+.idee .texte{color:var(--encre)}
 .badge{display:inline-block;min-width:16px;padding:0 5px;border-radius:999px;background:var(--retard);color:#fff;font-size:10px;line-height:16px;margin-left:3px}
 /* navigation */
 .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;height:76px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid #ecebf2;z-index:10}
@@ -156,7 +158,8 @@ var AVANCEMENTS = ['Calé', 'En cours', 'Bloqué', 'Pas commencé'];
 var CODES = { 'Calé': 'ok', 'En cours': 'encours', 'Bloqué': 'retard', 'Pas commencé': 'attente' };
 var MOIS = ['janv', 'févr', 'mars', 'avr', 'mai', 'juin', 'juil', 'août', 'sept', 'oct', 'nov', 'déc'];
 var MOIS_LONGS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-var etat = { jeton: lireJeton(), d: null, vue: 'programme', jour: null, onglet: null, edition: null, faites: false, titres: null, acces: null };
+var etat = { jeton: lireJeton(), d: null, vue: 'programme', jour: null, onglet: null, edition: null, faites: false, titres: null, acces: null,
+  idee: false, brouillonIdee: '' };
 var app = document.getElementById('app');
 
 function lireJeton() { try { return localStorage.getItem('ofest_jeton') || ''; } catch (e) { return ''; } }
@@ -346,7 +349,8 @@ function vueProgramme() {
     '<img class="logo" src="' + img(LOGO, 400) + '" alt="O\'Fest">' +
     '<div class="compte"><div><span>' + (d.joursAvant >= 0 ? 'Plus que' : 'C\'était il y a') + '</span><b>J' + (d.joursAvant >= 0 ? '-' + d.joursAvant : '+' + (-d.joursAvant)) + '</b></div>' +
     '<div class="dates">' + (+p[2]) + ' ' + MOIS_LONGS[+p[1] - 1].toLowerCase() + ' ' + p[0] + '<small>Métabief · bas des pistes</small></div></div></div>' +
-    '<div class="jours">' + d.jours.map(function (x) { return '<button data-jour="' + e(x) + '" class="' + (x === j ? 'on' : '') + '">' + jourCourt(x) + '</button>'; }).join('') + '</div>' + corps;
+    '<div class="jours">' + d.jours.map(function (x) { return '<button data-jour="' + e(x) + '" class="' + (x === j ? 'on' : '') + '">' + jourCourt(x) + '</button>'; }).join('') + '</div>' + corps +
+    '<button class="idee-lien" data-idee="ouvrir">💡 Proposer une amélioration de la page</button>';
 }
 function vueFiche() {
   var f = fiche(etat.onglet);
@@ -416,9 +420,19 @@ function vueMoi() {
   return '<div class="moi"><h2>' + e(m.nom) + '</h2><p>' + e(m.mail) + '</p><p style="margin-top:10px;color:var(--encre)">' +
     (m.pilotage ? 'Pilotage : tu peux modifier toutes les fiches.' : 'Tu peux modifier les fiches où ton adresse est inscrite.') + '</p>' +
     (etat.d.tableur ? '<a class="btn lien-btn" target="_blank" rel="noopener" href="' + e(etat.d.tableur) + '">Ouvrir le tableur Récap général 2027</a>' : '') +
-    (m.pilotage ? blocAcces() : '') +
+    blocIdee() + (m.pilotage ? blocAcces() : '') +
     '<button class="btn clair" style="width:100%;margin-top:12px" id="deconnexion">Se déconnecter</button>' +
     '<p style="font-size:13px;margin-top:22px;line-height:1.4">Toutes les infos viennent du tableur « Récap général O\'Fest 2027 » du Drive O\'Sports : une modification faite là-bas apparaît ici en moins d\'une minute.</p></div>';
+}
+
+/** Tous les membres (19/11) : une idée pour améliorer la page, envoyée au pilotage. */
+function blocIdee() {
+  if (!etat.idee) return '<div class="bloc idee" style="margin-top:16px;text-align:left"><h4>Une idée pour la page ?</h4>' +
+    '<div class="texte">Un oubli, un bouton qui manque, un truc pas clair : dis-le, le pilotage le reçoit.</div>' +
+    '<button class="btn" style="width:100%;margin-top:10px" data-idee="ouvrir">Proposer une amélioration</button></div>';
+  return '<div class="bloc idee" style="margin-top:16px;text-align:left"><h4>Proposer une amélioration</h4><form class="form" id="form-idee" style="border-top:0;margin-top:0;padding-top:0">' +
+    '<textarea name="texte" maxlength="2000" required placeholder="Ce qui te manque, ce qui gêne, ce qui serait plus simple…">' + e(etat.brouillonIdee) + '</textarea>' +
+    '<div class="boutons"><button type="button" class="btn clair" data-idee="fermer">Annuler</button><button class="btn">Envoyer</button></div></form></div>';
 }
 
 /** Pilotage (13/11) : les demandes d'accès à valider ici, et les accès ouverts (avec l'adresse de chacun). */
@@ -454,6 +468,28 @@ function recevoirAcces(r) {
 // ---------------------------------------------------------------- gestes
 function brancher() {
   app.querySelectorAll('[data-vue]').forEach(function (b) { b.onclick = function () { etat.vue = b.getAttribute('data-vue'); etat.edition = null; if (etat.vue === 'moi') etat.acces = null; rendre(); window.scrollTo(0, 0); }; });
+  app.querySelectorAll('[data-idee]').forEach(function (b) {
+    b.onclick = function () {
+      etat.idee = b.getAttribute('data-idee') === 'ouvrir';
+      if (etat.idee && etat.vue !== 'moi') { etat.vue = 'moi'; etat.acces = null; }
+      rendre();
+      var t = document.querySelector('#form-idee textarea');
+      if (t) { t.scrollIntoView({ block: 'center' }); t.focus(); }
+    };
+  });
+  var fi = document.getElementById('form-idee');
+  if (fi) {
+    fi.texte.oninput = function () { etat.brouillonIdee = fi.texte.value; };
+    fi.onsubmit = function (ev) {
+      ev.preventDefault();
+      appel('proposerAmelioration', [etat.jeton, fi.texte.value], function (r) {
+        if (r && r.session === false) { garderJeton(''); return ecranConnexion('Ta session a expiré : reconnecte-toi.', true); }
+        if (r && r.erreur) return toast(r.erreur);
+        etat.idee = false; etat.brouillonIdee = '';
+        toast(r.message); rendre();
+      });
+    };
+  }
   app.querySelectorAll('[data-decider]').forEach(function (b) {
     b.onclick = function () {
       if (b.getAttribute('data-confirmer') && !window.confirm('Passer cette personne en pilotage ? Elle pourra modifier toutes les fiches.')) return;
