@@ -119,6 +119,11 @@ a{color:var(--turquoise-fonce)}
 .chip.rouge{background:#fde8e8;color:var(--retard)}
 .idee-lien{display:block;margin:18px auto 0;background:#fff;color:var(--violet);border:0;border-radius:14px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 10px rgba(27,18,64,.12)}
 .idee .texte{color:var(--encre)}
+.role{padding:9px 0;border-top:1px solid var(--trait)} .role:first-of-type{border-top:0;padding-top:0}
+.role small{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gris);font-weight:700}
+.role b{display:block;font-size:15px;margin-top:2px;white-space:pre-wrap} .role .valides{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px}
+.chip.ok{background:#e4f6ea;color:#1f7a45;margin-top:0}
+.lien{background:none;border:0;color:var(--turquoise-fonce);font-weight:700;font-size:13px;padding:8px 0 0;cursor:pointer}
 .badge{display:inline-block;min-width:16px;padding:0 5px;border-radius:999px;background:var(--retard);color:#fff;font-size:10px;line-height:16px;margin-left:3px}
 /* navigation */
 .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;height:76px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid #ecebf2;z-index:10}
@@ -270,15 +275,19 @@ function ecranDemande() {
       '<label>Adresse mail</label><input name="mail" type="email" autocomplete="email" required>' +
       '<label>Ma fiche (activité ou commission)</label><select name="fiche"><option value="">Pilotage ou autre</option>' +
       titres.map(function (t) { return '<option>' + e(t) + '</option>'; }).join('') + '</select>' +
+      '<div id="role-fiche" style="display:none"><label>Mon rôle dans cette commission</label><select name="roleFiche">' +
+      '<option value="equipe">Membre de l\'équipe</option><option value="responsable">Responsable</option></select></div>' +
       '<label>Mot de passe choisi (8 caractères au moins)</label><input name="mdp" type="password" autocomplete="new-password" required>' +
       '<label>Le même, encore une fois</label><input name="mdp2" type="password" autocomplete="new-password" required>' +
       '<button class="btn">Envoyer ma demande</button></form><div class="liens"><button id="retour">‹ Retour à la connexion</button></div>');
     document.getElementById('retour').onclick = function () { ecranConnexion(); };
-    document.getElementById('f').onsubmit = function (ev) {
+    var formDemande = document.getElementById('f');
+    formDemande.fiche.onchange = function () { document.getElementById('role-fiche').style.display = formDemande.fiche.value ? '' : 'none'; };
+    formDemande.onsubmit = function (ev) {
       ev.preventDefault();
       var f = ev.target;
       if (f.mdp.value !== f.mdp2.value) return toast('Les deux mots de passe ne sont pas les mêmes.');
-      appel('demanderAcces', [f.nom.value, f.mail.value, f.fiche.value, f.mdp.value], function (r) {
+      appel('demanderAcces', [f.nom.value, f.mail.value, f.fiche.value, f.mdp.value, f.roleFiche.value], function (r) {
         if (r.erreur) return toast(r.erreur);
         ecranConnexion('Demande envoyée à O\'Sports. Tu recevras un mail dès que ton accès sera ouvert.');
       });
@@ -352,6 +361,11 @@ function vueProgramme() {
     '<div class="jours">' + d.jours.map(function (x) { return '<button data-jour="' + e(x) + '" class="' + (x === j ? 'on' : '') + '">' + jourCourt(x) + '</button>'; }).join('') + '</div>' + corps +
     '<button class="idee-lien" data-idee="ouvrir">💡 Proposer une amélioration de la page</button>';
 }
+/** Un rôle de la commission : ce que l'équipe a écrit, puis les personnes validées sur l'application (✓). */
+function role(titre, ecrit, valides) {
+  return '<div class="role"><small>' + titre + '</small><b>' + (ecrit ? e(ecrit) : '<span class="vide">À désigner</span>') + '</b>' +
+    (valides && valides.length ? '<div class="valides">' + valides.map(function (n) { return '<span class="chip ok">✓ ' + e(n) + '</span>'; }).join('') + '</div>' : '') + '</div>';
+}
 function vueFiche() {
   var f = fiche(etat.onglet);
   if (!f) { etat.vue = 'programme'; return vueProgramme(); }
@@ -367,7 +381,8 @@ function vueFiche() {
   var form = function (cle) {
     if (ed !== cle) return '';
     var champs = {
-      equipe: '<input name="responsable" placeholder="Responsable" value="' + e(f.responsable) + '"><input name="equipe" placeholder="Équipe" value="' + e(f.equipe) + '">',
+      equipe: '<input name="lienPilotage" placeholder="Lien pilotage" value="' + e(f.lienPilotage) + '"><input name="responsable" placeholder="Responsable" value="' + e(f.responsable) + '">' +
+        '<input name="equipe" placeholder="Équipe" value="' + e(f.equipe) + '">',
       ouOnEnEst: '<textarea name="ouOnEnEst">' + e(f.ouOnEnEst) + '</textarea>',
       budget: '<input name="budget" placeholder="Fourchette de budget" value="' + e(f.budget) + '">',
       taches: '<input name="tache" placeholder="Tâche" required><input name="qui" placeholder="Qui"><input name="echeance" type="date">',
@@ -382,9 +397,10 @@ function vueFiche() {
     '<div class="bloc"><div class="statut"><span class="pastille ' + f.statut + '" style="background:var(--neige)"><i></i>' + e(f.avancement || 'Pas commencé') + '</span>' +
     '<small>' + (f.misAJour ? 'Mis à jour le ' + e(f.misAJour) : '') + '</small></div>' +
     (peut ? '<div class="segments">' + AVANCEMENTS.map(function (a) { return '<button data-avancement="' + a + '" class="' + (a === f.avancement ? 'on' : '') + '">' + a + '</button>'; }).join('') + '</div>' : '') + '</div>' +
-    '<div class="bloc"><h4>Équipe' + modif('equipe') + '</h4>' +
-    '<div class="personne"><span class="av">' + e(initiales(f.responsable)) + '</span><span><b>' + e(f.responsable || 'Responsable à désigner') + '</b><small>Responsable</small></span></div>' +
-    (f.equipe ? '<div class="personne"><span class="av" style="background:var(--violet)">+</span><span><b>' + e(f.equipe) + '</b><small>Équipe</small></span></div>' : '') + form('equipe') + '</div>' +
+    '<div class="bloc"><h4>Qui fait quoi' + modif('equipe') + '</h4>' + role('Lien pilotage', f.lienPilotage, f.valides.lienPilotage) +
+    role('Responsable', f.responsable, f.valides.responsable) + role('Équipe', f.equipe, f.valides.equipe) +
+    (etat.d.moi.pilotage ? '<button class="lien" data-lien="' + (f.moiLien ? '' : '1') + '">' + (f.moiLien ? 'Retirer mon nom du lien pilotage' : 'Je suis le lien pilotage de cette commission') + '</button>' : '') +
+    form('equipe') + '</div>' +
     '<div class="bloc"><h4>Où on en est' + modif('ouOnEnEst') + '</h4>' + (f.ouOnEnEst ? '<div class="texte">' + e(f.ouOnEnEst) + '</div>' : '<div class="vide">Rien d\'écrit pour l\'instant.</div>') + form('ouOnEnEst') + '</div>' +
     '<div class="bloc"><h4>À faire' + modif('taches') + '</h4>' + (aFaire.length ? aFaire.map(ligneTache).join('') : '<div class="vide">Rien en attente.</div>') +
     (faites.length ? (etat.faites ? faites.map(ligneTache).join('') : '<button class="plus-faites" data-faites>' + (faites.length > 1 ? 'Voir les ' + faites.length + ' tâches faites' : 'Voir la tâche faite') + '</button>') : '') + form('taches') + '</div>' +
@@ -442,7 +458,7 @@ function blocAcces() {
   var quand = function (ms) { var d = new Date(ms); return d.getDate() + ' ' + MOIS[d.getMonth()] + ' à ' + d.getHours() + 'h' + ('0' + d.getMinutes()).slice(-2); };
   var bouton = function (c, action, texte, classe) { return '<button class="btn' + (classe || '') + '" data-decider="' + action + '" data-mail="' + e(c.mail) + '">' + texte + '</button>'; };
   return '<div class="bloc comptes"><h4>Demandes d\'accès</h4>' + (attente.length ? attente.map(function (c) {
-      return '<div class="ligne"><b>' + e(c.nom) + '</b><small>' + e(c.mail) + ' · ' + e(c.fiche || 'Pilotage ou autre') + (c.demandeLe ? ' · le ' + quand(c.demandeLe) : '') + '</small>' +
+      return '<div class="ligne"><b>' + e(c.nom) + '</b><small>' + e(c.mail) + ' · ' + e(c.fiche ? c.fiche + (c.roleFiche === 'responsable' ? ' (responsable)' : ' (équipe)') : 'Pilotage ou autre') + (c.demandeLe ? ' · le ' + quand(c.demandeLe) : '') + '</small>' +
         '<div class="boutons">' + (c.fiche ? bouton(c, 'valider', 'Sa fiche') : '') + bouton(c, 'pilotage', 'Pilotage') + bouton(c, 'refuser', 'Refuser', ' clair') + '</div></div>';
     }).join('') : '<div class="vide">Aucune demande en attente.</div>') + '</div>' +
     '<div class="bloc comptes"><h4>Accès ouverts · ' + ouverts.length + '</h4>' + ouverts.map(function (c) {
@@ -468,6 +484,9 @@ function recevoirAcces(r) {
 // ---------------------------------------------------------------- gestes
 function brancher() {
   app.querySelectorAll('[data-vue]').forEach(function (b) { b.onclick = function () { etat.vue = b.getAttribute('data-vue'); etat.edition = null; if (etat.vue === 'moi') etat.acces = null; rendre(); window.scrollTo(0, 0); }; });
+  app.querySelectorAll('[data-lien]').forEach(function (b) {
+    b.onclick = function () { appel('lienPilotage', [etat.jeton, etat.onglet, !!b.getAttribute('data-lien')], recevoir); };
+  });
   app.querySelectorAll('[data-idee]').forEach(function (b) {
     b.onclick = function () {
       etat.idee = b.getAttribute('data-idee') === 'ouvrir';
