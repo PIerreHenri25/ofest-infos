@@ -118,6 +118,8 @@ a{color:var(--turquoise-fonce)}
 .chip{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--neige);color:var(--violet);margin-top:5px}
 .chip.rouge{background:#fde8e8;color:var(--retard)}
 .idee-lien{display:block;margin:18px auto 0;background:#fff;color:var(--violet);border:0;border-radius:14px;padding:12px 18px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 10px rgba(27,18,64,.12)}
+.liste .idee-lien{background:rgba(255,255,255,.08);color:#fff;box-shadow:none;border:1px dashed rgba(255,255,255,.35);width:100%;margin-top:12px}
+.grille .idee-lien{grid-column:1/-1;min-height:0;text-align:center;margin:4px 0 0;width:100%}
 .idee .texte{color:var(--encre)}
 .role{padding:9px 0;border-top:1px solid var(--trait)} .role:first-of-type{border-top:0;padding-top:0}
 .role small{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gris);font-weight:700}
@@ -341,11 +343,13 @@ function vueProgramme() {
   var d = etat.d, j = etat.jour;
   var fiches = d.fiches.filter(function (f) { return j === 'Partout' ? estPartout(f) : f.jour === j; });
   var p = d.festival.split('-');
+  // juste sous les fiches du jour, pour qu'on le voie sans faire défiler (19/11 : tout en bas, il restait caché sous la barre)
+  var idee = '<button class="idee-lien" data-idee="ouvrir">💡 Proposer une amélioration de la page</button>';
   var corps = j === 'Partout'
     ? '<div class="grille">' + fiches.map(function (f) {
         return '<button data-fiche="' + e(f.onglet) + '">' + e(f.titre) + '<small><span class="pt ' + f.statut + '"></span>' +
           e(f.responsable || f.avancement || 'À désigner') + '</small></button>';
-      }).join('') + '</div>'
+      }).join('') + idee + '</div>'
     : '<div class="liste">' + fiches.map(function (f) {
         var t = f.taches.filter(function (x) { return !x.fait; })[0];
         return '<button class="carte" data-fiche="' + e(f.onglet) + '"><span class="vis" style="' + (VISUELS[f.visuel] ? 'background-image:url(' + img(VISUELS[f.visuel], 300) + ')' : '') + '"></span>' +
@@ -353,13 +357,12 @@ function vueProgramme() {
           '<span class="pastille ' + f.statut + '"><i></i>' + e(f.avancement || 'Pas commencé') + '</span>' +
           (t ? '<div class="suite">' + e(t.tache) + (t.echeance ? ' · ' + dateCourte(t.echeance) : '') + '</div>' : f.ouOnEnEst ? '<div class="suite">' + e(f.ouOnEnEst) + '</div>' : '') +
           '</span></button>';
-      }).join('') + (fiches.length ? '' : '<p style="color:#cfc9ea">Aucune fiche ce jour-là.</p>') + '</div>';
+      }).join('') + (fiches.length ? '' : '<p style="color:#cfc9ea">Aucune fiche ce jour-là.</p>') + idee + '</div>';
   return '<div class="hero" style="background-image:linear-gradient(180deg,rgba(27,18,64,.05),rgba(27,18,64,.2) 55%,rgba(27,18,64,.95)),url(' + img(HERO, 1000) + ')">' +
     '<img class="logo" src="' + img(LOGO, 400) + '" alt="O\'Fest">' +
     '<div class="compte"><div><span>' + (d.joursAvant >= 0 ? 'Plus que' : 'C\'était il y a') + '</span><b>J' + (d.joursAvant >= 0 ? '-' + d.joursAvant : '+' + (-d.joursAvant)) + '</b></div>' +
     '<div class="dates">' + (+p[2]) + ' ' + MOIS_LONGS[+p[1] - 1].toLowerCase() + ' ' + p[0] + '<small>Métabief · bas des pistes</small></div></div></div>' +
-    '<div class="jours">' + d.jours.map(function (x) { return '<button data-jour="' + e(x) + '" class="' + (x === j ? 'on' : '') + '">' + jourCourt(x) + '</button>'; }).join('') + '</div>' + corps +
-    '<button class="idee-lien" data-idee="ouvrir">💡 Proposer une amélioration de la page</button>';
+    '<div class="jours">' + d.jours.map(function (x) { return '<button data-jour="' + e(x) + '" class="' + (x === j ? 'on' : '') + '">' + jourCourt(x) + '</button>'; }).join('') + '</div>' + corps;
 }
 /** Un rôle de la commission : ce que l'équipe a écrit, puis les personnes validées sur l'application (✓). */
 function role(titre, ecrit, valides) {
